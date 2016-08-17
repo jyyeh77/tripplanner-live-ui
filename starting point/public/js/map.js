@@ -1,3 +1,4 @@
+var gMap;
 $(function initializeMap (){
 
   var fullstackAcademy = new google.maps.LatLng(40.705086, -74.009151);
@@ -39,7 +40,7 @@ $(function initializeMap (){
     mapTypeId: google.maps.MapTypeId.ROADMAP,
     styles: styleArr
   });
-
+	console.log(currentMap);
   var iconURLs = {
     hotel: '/images/lodging_0star.png',
     restaurant: '/images/restaurant.png',
@@ -56,8 +57,10 @@ $(function initializeMap (){
     marker.setMap(currentMap);
   }
 
-  drawMarker('hotel', [40.705137, -74.007624]);
-  drawMarker('restaurant', [40.705137, -74.013940]);
+  // drawMarker('hotel', [40.705137, -74.007624]);
+  // drawMarker('restaurant', [40.705137, -74.013940]);
   drawMarker('activity', [40.716291, -73.995315]);
-
+	gMap = currentMap;
 });
+
+
