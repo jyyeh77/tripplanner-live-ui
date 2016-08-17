@@ -1,5 +1,5 @@
 // GLOBAL VARIABLES
-
+var markers = [];
 var iconURLs = {
 	hotel: '/images/lodging_0star.png',
 	restaurant: '/images/restaurant.png',
@@ -12,17 +12,17 @@ $(document).ready(function () {
 	console.log("DOCUMENT READY");
 	dropdown();
 	update();
+	remove();
 })
 
 
 // HELPER FUNCTIONS
 function updateMap(location, data, iconType){
 	var position;
-
 	data.forEach(function (element) {
 		if (element.name === location) position = element.place.location;
 	})
-	if (position) drawMarker(iconType, position);
+	if (position) drawMarker(iconType, position, location);
 }
 
 // initiates dropdown menus from within database
@@ -59,12 +59,11 @@ function update() {
 
 			// append hotel to ul, then wrap div around it, then insert button as sibling to select hotel
 			$("#hotelGroup").append($hotelName);
-			$hotelName.wrap("<div class='itinerary-item'></div>").after($button);
+			$hotelName.wrap("<div class='itinerary-item' id='"+selectedHotel+"'></div>").after($button);
 		}
 	})
 
 	$("#restaurantAdd").click(function () {
-		console.log("We clicked restaurants!");
 
 		var selectedRestaurant = $("#restaurant-choices option:selected").text();
 
@@ -84,16 +83,16 @@ function update() {
 
 				// append hotel to ul, then wrap div around it, then insert button as sibling to select hotel
 				$("#restaurantGroup").append($restaurantName);
-				$restaurantName.wrap("<div class='itinerary-item'></div>").after($button);
+				$restaurantName.wrap("<div class='itinerary-item' id='"+selectedRestaurant+"'></div>").after($button);
 			}
 		}
 	})
 
 	$("#activityAdd").click(function () {
+
 		var selectedActivities = $("#activity-choices option:selected").text();
 		// prevents user from inputting heading of dropdown
 		if (selectedActivities !== '--You Hungry Yet?--') {
-
 			if (selectedActivitiesArray.indexOf(selectedActivities) >= 0) {
 				alert("Already selected")
 			} else {
@@ -105,20 +104,40 @@ function update() {
 
 				// append hotel to ul, then wrap div around it, then insert button as sibling to select hotel
 				$("#activitiesGroup").append($activitiesName);
-				$activitiesName.wrap("<div class='itinerary-item'></div>").after($button);
+				$activitiesName.wrap("<div class='itinerary-item' id='"+selectedActivities+"'></div>").after($button);
 			}
 		}
+	})
+
+	}
+
+// removes places/activities from itinerary
+
+function remove(){
+	$('#itinerary').on('click','.remove', function() {
+
+		var closestDiv = $(this).closest("div.itinerary-item");
+		var closestId = closestDiv["0"].id;
+		console.log(closestDiv["0"]);
+		console.log(closestId);
+		markers.forEach(function(marker){
+			console.log("Marker: ", marker);
+			if (marker[0] === closestId) marker[1].setMap(null);
+		})
+		closestDiv.remove();
+
 	})
 }
 
 // copied over from map.js boiler plate
-function drawMarker (type, coords) {
+function drawMarker (type, coords, location) {
 	var latLng = new google.maps.LatLng(coords[0], coords[1]);
 	var iconURL = iconURLs[type];
 	var marker = new google.maps.Marker({
 		icon: iconURL,
 		position: latLng
 	});
+	markers.push([location, marker]);
 	marker.setMap(gMap);
 }
 
