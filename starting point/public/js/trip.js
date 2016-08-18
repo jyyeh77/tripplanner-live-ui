@@ -1,6 +1,7 @@
 // GLOBAL VARIABLES
 var markers = [];
-var day = [];
+var day = {};
+day[getDay()] = {hotel: [], restaurants: [], activities: []};
 var iconURLs = {
 	hotel: '/images/lodging_0star.png',
 	restaurant: '/images/restaurant.png',
@@ -45,7 +46,6 @@ function update() {
 	var hotels = this.hotels;
 	var restaurants = this.restaurants;
 	var activities = this.activities;
-	day[getDay()] = {hotel: [], restaurants: [], activities: []};
 
 	$("#hotelAdd").click(function () {
 		var selectedHotel = $("#hotel-choices option:selected").text();
@@ -58,6 +58,8 @@ function update() {
 			// selects DOM elements that we want to insert, namely select hotel/button
 			var $hotelName = $("<span>" + selectedHotel + "</span>");
 			var $button = $("<button class='btn btn-xs btn-danger remove btn-circle'>" + 'x' + "</button>");
+
+			$("#hotelGroup").show();
 
 			// append hotel to ul, then wrap div around it, then insert button as sibling to select hotel
 			$("#hotelGroup").append($hotelName);
@@ -85,6 +87,8 @@ function update() {
 				var $restaurantName = $("<span>" + selectedRestaurant + "</span>");
 				var $button = $("<button class='btn btn-xs btn-danger remove btn-circle'>" + 'x' + "</button>");
 
+				$("#restaurantGroup").show();
+
 				// append hotel to ul, then wrap div around it, then insert button as sibling to select hotel
 				$("#restaurantGroup").append($restaurantName);
 				$restaurantName.wrap("<div class='itinerary-item' id='"+selectedRestaurant+"'></div>").after($button);
@@ -107,6 +111,8 @@ function update() {
 				var $activitiesName = $("<span>" + selectedActivities + "</span>");
 				var $button = $("<button class='btn btn-xs btn-danger remove btn-circle'>" + 'x' + "</button>");
 
+				// checks for presence of unordered list if going to different day
+				$("#activitiesGroup").show();
 				// append hotel to ul, then wrap div around it, then insert button as sibling to select hotel
 				$("#activitiesGroup").append($activitiesName);
 				$activitiesName.wrap("<div class='itinerary-item' id='"+selectedActivities+"'></div>").after($button);
@@ -141,9 +147,20 @@ function remove(){
 
 function switchDays(){
 	$('.panel-default').on('click', '.day-btn', function(){
+		var previousDay = getDay();
 		remove();
 		$(this).removeClass();
 		$(this).addClass("btn btn-circle day-btn current-day");
+		// removes highlighting from other day buttons
+		$(this).siblings().removeClass();
+		$(this).siblings().addClass("btn btn-circle day-btn");
+		// creates new day object with hotel, restaurants, activities
+		day[getDay()] = {};
+		for (var location in day[previousDay]){
+			day[getDay()][location] = [];
+		}
+		//changes Day title
+		$('#day-title > span').text("Day " + getDay());
 	})
 }
 
