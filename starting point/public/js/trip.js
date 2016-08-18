@@ -1,20 +1,21 @@
 // GLOBAL VARIABLES
 var markers = [];
+var day = [];
 var iconURLs = {
 	hotel: '/images/lodging_0star.png',
 	restaurant: '/images/restaurant.png',
 	activity: '/images/star-3.png'
 };
 
-
 // INITIAL FUNCTION CALLS
 $(document).ready(function () {
 	console.log("DOCUMENT READY");
 	dropdown();
 	update();
-	remove();
+	removeButton();
+	switchDays();
+	getDay();
 })
-
 
 // HELPER FUNCTIONS
 function updateMap(location, data, iconType){
@@ -44,6 +45,7 @@ function update() {
 	var hotels = this.hotels;
 	var restaurants = this.restaurants;
 	var activities = this.activities;
+	day[getDay()] = {hotel: [], restaurants: [], activities: []};
 
 	$("#hotelAdd").click(function () {
 		var selectedHotel = $("#hotel-choices option:selected").text();
@@ -60,6 +62,8 @@ function update() {
 			// append hotel to ul, then wrap div around it, then insert button as sibling to select hotel
 			$("#hotelGroup").append($hotelName);
 			$hotelName.wrap("<div class='itinerary-item' id='"+selectedHotel+"'></div>").after($button);
+			// adds select hotel to day obj
+			day[getDay()].hotel.push(selectedHotel);
 		}
 	})
 
@@ -74,7 +78,7 @@ function update() {
 			if (selectedRestaurants.indexOf(selectedRestaurant) >= 0) {
 				alert("Already selected")
 			} else {
-				selectedRestaurants.push(selectedRestaurant)
+				selectedRestaurants.push(selectedRestaurant);
 				updateMap(selectedRestaurant, restaurants, 'restaurant');
 
 				// selects DOM elements that we want to insert, namely select hotel/button
@@ -84,6 +88,7 @@ function update() {
 				// append hotel to ul, then wrap div around it, then insert button as sibling to select hotel
 				$("#restaurantGroup").append($restaurantName);
 				$restaurantName.wrap("<div class='itinerary-item' id='"+selectedRestaurant+"'></div>").after($button);
+				day[getDay()].restaurants.push(selectedRestaurant);
 			}
 		}
 	})
@@ -92,7 +97,7 @@ function update() {
 
 		var selectedActivities = $("#activity-choices option:selected").text();
 		// prevents user from inputting heading of dropdown
-		if (selectedActivities !== '--You Hungry Yet?--') {
+		if (selectedActivities !== '--Let\'s Do Something!--') {
 			if (selectedActivitiesArray.indexOf(selectedActivities) >= 0) {
 				alert("Already selected")
 			} else {
@@ -105,28 +110,46 @@ function update() {
 				// append hotel to ul, then wrap div around it, then insert button as sibling to select hotel
 				$("#activitiesGroup").append($activitiesName);
 				$activitiesName.wrap("<div class='itinerary-item' id='"+selectedActivities+"'></div>").after($button);
+				// adds activities to current day
+				day[getDay()].activities.push(selectedActivities);
 			}
 		}
 	})
-
 	}
 
-// removes places/activities from itinerary
-
-function remove(){
+	// functionality for remove buttons in itinerary
+function removeButton(){
 	$('#itinerary').on('click','.remove', function() {
-
 		var closestDiv = $(this).closest("div.itinerary-item");
 		var closestId = closestDiv["0"].id;
-		console.log(closestDiv["0"]);
-		console.log(closestId);
-		markers.forEach(function(marker){
-			console.log("Marker: ", marker);
+		markers.forEach(function (marker) {
 			if (marker[0] === closestId) marker[1].setMap(null);
 		})
 		closestDiv.remove();
-
 	})
+}
+
+// removes places/activities from itinerary on click
+function remove(){
+	var hotelGroup = $('#hotelGroup');
+	var restaurantGroup = $('#restaurantGroup');
+	var activitiesGroup = $('#activitiesGroup');
+	hotelGroup.hide();
+	restaurantGroup.hide();
+	activitiesGroup.hide();
+}
+
+function switchDays(){
+	$('.panel-default').on('click', '.day-btn', function(){
+		remove();
+		$(this).removeClass();
+		$(this).addClass("btn btn-circle day-btn current-day");
+	})
+}
+
+function getDay(){
+	var currentDay = $(".day-buttons .current-day").text();
+	return currentDay;
 }
 
 // copied over from map.js boiler plate
